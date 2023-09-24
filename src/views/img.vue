@@ -27,7 +27,7 @@
       <h1 class="copy">@GuaiJieOvO</h1>
       <div
         class="musiccover"
-        :style="'background-image: url(' + avatar + ')'"
+        :style="'background-image: url(' + bgImg + ')'"
       ></div>
       <div class="avatar">
         <h1>「 日推歌单 」</h1>
@@ -68,7 +68,10 @@
 <script setup>
 import { ref, onMounted } from "vue";
 import store from "@/utils/store.js";
+import { useRouter } from "vue-router";
 import domtoimage from "dom-to-image";
+
+const router = useRouter();
 
 // dom
 let endTime = ref();
@@ -81,6 +84,7 @@ let album = ref(store.album);
 let lrc = ref(store.lrc);
 let music = ref(store.music);
 let letter = ref(store.letter);
+let bgImg = ref(store.bgImg);
 let isLoading = ref(false);
 
 // 格式化时间
@@ -142,5 +146,5 @@ onMounted(() => {
 </script>
 
 <style lang="less" scoped>
-@import url('@/styles/img.less');
+@import url("@/styles/img.less");
 </style>

@@ -68,6 +68,23 @@
           <i v-else class="iconfont icon-add">&#xe664;</i>
         </el-upload>
       </el-tooltip>
+      <el-text class="mx-1" size="large">播放器背景:</el-text>
+      <el-text class="mx-1" size="small">(留空则为封面图片)</el-text>
+      <el-tooltip content="上传图片(可拖拽上传)" placement="right">
+        <el-upload
+          ref="bgUploader"
+          class="avatar-uploader"
+          :auto-upload="false"
+          :show-file-list="false"
+          :on-change="handleBg"
+          :limit="1"
+          :on-exceed="handleBgExceed"
+          drag
+        >
+          <img v-if="bgImg" :src="bgImg" class="avatar" />
+          <i v-else class="iconfont icon-add">&#xe664;</i>
+        </el-upload>
+      </el-tooltip>
       <el-button
         @click="saveData"
         type="primary"
@@ -92,6 +109,7 @@ const router = useRouter();
 const avatarUploader = ref();
 const musicUploader = ref();
 const lrcUploader = ref();
+const bgUploader = ref();
 
 // variate
 let name = ref(store.name);
@@ -101,6 +119,7 @@ let album = ref(store.album);
 let lrc = ref(store.lrc);
 let music = ref(store.music);
 let letter = ref(store.letter);
+let bgImg = ref(store.bgImg);
 
 const saveData = () => {
   const inputs = [
@@ -121,8 +140,9 @@ const saveData = () => {
     // 将所有变量存入 store 中
     store[input.prop] = input.value;
   }
-  // 将文案存入 store 中
+  // 将文案和背景图片存入 store 中
   store.letter = letter.value;
+  store.bgImg = bgImg.value ? bgImg.value : avatar.value;
 
   router.push("/img"); // 前往图片页
   ElMessage.success("保存成功啦~(＾－＾)V 不要刷新页面哦 刷新了就没有了");
@@ -176,6 +196,16 @@ const handleAvatar = (files) => {
 
 const handleAvatarExceed = (files) => {
   handleExceed(files, "image", avatarUploader);
+};
+
+// 上传背景
+
+const handleBg = (files) => {
+  handleUpload(files, "image", bgUploader, bgImg);
+};
+
+const handleBgExceed = (files) => {
+  handleExceed(files, "image", bgUploader);
 };
 
 // 处理上传文件事件(文件更新也会触发)
@@ -243,7 +273,7 @@ const handleExceed = (files, type, dom) => {
     position: absolute;
     top: 0;
     left: 0;
-    width: 100%;
+    height: 100%;
     object-fit: cover;
   }
   &:hover {

@@ -9,6 +9,7 @@ const store = reactive({
   lrc: null, // string
   music: null, // blob
   letter: null, // blob
+  bgImg: null, // blob
 });
 
 export default store;

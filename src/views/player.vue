@@ -3,7 +3,7 @@
     <h1 class="copy">@GuaiJieOvO</h1>
     <div
       class="musiccover"
-      :style="'background-image: url(' + avatar + ')'"
+      :style="'background-image: url(' + bgImg + ')'"
     ></div>
     <div class="avatar">
       <h1>「 日推歌单 」</h1>
@@ -94,6 +94,7 @@ let avatar = ref(store.avatar);
 let album = ref(store.album);
 let lrc = ref(store.lrc);
 let music = ref(store.music);
+let bgImg = ref(store.bgImg);
 
 let isPlay = ref(false);
 let formattedLrc = null;
@@ -163,7 +164,7 @@ const scrollLrc = (currentTime) => {
       const newActive = lrcDom.value.querySelectorAll("div")[i];
       newActive.classList.add("active");
       lrcDom.value.scrollTo({
-        top: newActive.offsetTop - lrcDom.value.clientHeight / 2,
+        top: newActive.offsetTop - lrcDom.value.clientHeight / 1.5,
         behavior: "smooth",
       });
     }
@@ -210,7 +211,6 @@ onUnmounted(() => {
     menu.classList.remove("move"); // 显示menu
   }
   menuControler.style.display = "block";
-  document.querySelector("audio").removeEventListener("timeupdate", timeUpdate);
 });
 </script>
 
