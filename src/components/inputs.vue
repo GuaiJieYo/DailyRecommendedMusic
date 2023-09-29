@@ -28,7 +28,7 @@
           </el-tooltip>
         </div>
         <div>
-          <el-text class="mx-1" size="large">上传歌词(只支持.txt):</el-text>
+          <el-text class="mx-1" size="large">上传歌词(只支持.txt)(可留空):</el-text>
           <el-tooltip content="上传歌词(可拖拽上传)" placement="right">
             <el-upload
               style="
@@ -127,7 +127,6 @@ const saveData = () => {
     { value: auther.value, prop: "auther", message: "作者" },
     { value: avatar.value, prop: "avatar", message: "头像" },
     { value: album.value, prop: "album", message: "专辑" },
-    { value: lrc.value, prop: "lrc", message: "歌词" },
     { value: music.value, prop: "music", message: "音乐" },
   ];
 
@@ -140,9 +139,10 @@ const saveData = () => {
     // 将所有变量存入 store 中
     store[input.prop] = input.value;
   }
-  // 将文案和背景图片存入 store 中
+  // 将歌词、文案、背景图片存入 store 中
+  store.lrc = lrc.value;
   store.letter = letter.value;
-  store.bgImg = bgImg.value ? bgImg.value : avatar.value;
+  store.bgImg = bgImg.value ? bgImg.value : avatar.value; // 判断背景是否上传
 
   router.push("/img"); // 前往图片页
   ElMessage.success("保存成功啦~(＾－＾)V 不要刷新页面哦 刷新了就没有了");

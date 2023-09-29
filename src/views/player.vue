@@ -5,7 +5,7 @@
       class="musiccover"
       :style="'background-image: url(' + bgImg + ')'"
     ></div>
-    <div class="avatar">
+    <div class="avatar" :style="hasLrc ? '' : 'width:100%'">
       <h1>「 日推歌单 」</h1>
       <!-- 封面 -->
       <img :src="avatar" :alt="name" />
@@ -37,13 +37,15 @@
         <i class="iconfont icon-next">&#xe687;</i>
       </div>
     </div>
-    <div class="lrc">
+    <!-- 歌词 -->
+    <div class="lrc" v-if="hasLrc">
       <div ref="lrcDom" class="box">
+        <div class="hasNoZeroTime active" v-if="hasNoZeroTime"></div>
         <div
           :time="item.tag"
           v-for="(item, index) in formattedLrc"
           :key="index"
-          :hover="item.content == '' ? false : true"
+          :empty="item.content == '' || item.content == '\r' ? true : false"
           :class="item.tag == '0.00' ? 'active' : ''"
           :index="index"
           @click="turnTo(item.tag)"
@@ -92,12 +94,13 @@ let name = ref(store.name);
 let auther = ref(store.auther);
 let avatar = ref(store.avatar);
 let album = ref(store.album);
-let lrc = ref(store.lrc);
 let music = ref(store.music);
 let bgImg = ref(store.bgImg);
 
 let isPlay = ref(false);
 let formattedLrc = null;
+let hasLrc = ref(true);
+let hasNoZeroTime = ref(false);
 
 // 音频变量
 let nowTime = ref();
@@ -114,6 +117,23 @@ const formatTime = (seconds) => {
   return `${formattedMinutes}:${formattedSeconds}`;
 };
 
+// 歌词滚动部分
+const scrollLrc = (currentTime) => {
+  for (let i = 0; i < formattedLrc.length; i++) {
+    if (currentTime > parseInt(formattedLrc[i].tag)) {
+      if (lrcDom.value.querySelector(".active")) {
+        lrcDom.value.querySelector(".active").classList.remove("active");
+      }
+      const newActive = lrcDom.value.querySelectorAll("div")[i + 1];
+      newActive.classList.add("active");
+      lrcDom.value.scrollTo({
+        top: newActive.offsetTop - lrcDom.value.clientHeight / 1.5,
+        behavior: "smooth",
+      });
+    }
+  }
+};
+
 // 获取结束时间
 const getEndTime = () => {
   endTime.value = audio.value.duration | 0;
@@ -124,7 +144,9 @@ const timeUpdate = (e) => {
   // 这里不取整 是因为要保证进度条的精度
   const currentTime = e.target.currentTime;
   nowTime.value = Math.floor(currentTime * 100) / 100; // 播放进度
-  scrollLrc(currentTime);
+  if (hasLrc.value == true) {
+    scrollLrc(currentTime);
+  }
 };
 
 // 播放
@@ -135,17 +157,27 @@ const play = () => {
   } else {
     audio.value.play();
     isPlay.value = true;
-    lrcDom.value.scrollTo({ // 直接滚动到active处
-      top:
-        lrcDom.value.querySelector(".active").offsetTop -
-        lrcDom.value.clientHeight / 2,
-    });
+    if (lrcDom.value && lrcDom.value.querySelector(".active")) {
+      lrcDom.value.scrollTo({
+        // 直接滚动到active处
+        top:
+          lrcDom.value.querySelector(".active").offsetTop -
+          lrcDom.value.clientHeight / 2,
+      });
+    }
+    if (lrcDom.value && audio.value.currentTime == 0) {
+      lrcDom.value.scrollTo({ top: 0, behavior: "smooth" });
+    }
   }
 };
 
 // 重头开始播放
 const restart = () => {
   audio.value.currentTime = 0;
+  lrcDom.value.scrollTo({ top: 0 });
+  if (lrcDom.value.querySelector(".active")) {
+    lrcDom.value.querySelector(".active").classList.remove("active");
+  }
 };
 
 // 音频跳转
@@ -155,29 +187,12 @@ const turnTo = (tag) => {
   isPlay.value = true;
 };
 
-// 歌词滚动部分
-const scrollLrc = (currentTime) => {
-  for (let i = 0; i < formattedLrc.length; i++) {
-    if (currentTime > parseInt(formattedLrc[i].tag)) {
-      const active = lrcDom.value.querySelector(".active");
-      active.classList.remove("active");
-      const newActive = lrcDom.value.querySelectorAll("div")[i];
-      newActive.classList.add("active");
-      lrcDom.value.scrollTo({
-        top: newActive.offsetTop - lrcDom.value.clientHeight / 1.5,
-        behavior: "smooth",
-      });
-    }
-  }
-};
-
 onMounted(() => {
   const inputs = [
     name.value,
     auther.value,
     avatar.value,
     album.value,
-    lrc.value,
     music.value,
   ];
 
@@ -189,9 +204,9 @@ onMounted(() => {
 
   ElMessage({
     showClose: true,
-    message: '按F11打开全屏',
-    type: 'success',
-  })
+    message: "按F11打开全屏",
+    type: "success",
+  });
   const menu = document.querySelector("#menu");
   const menuControler = menu.querySelector(".show");
   if (!menu.classList.contains("move")) {
@@ -199,7 +214,16 @@ onMounted(() => {
   }
   menuControler.style.display = "none";
 
-  formattedLrc = lrcToArry(store.lrc);
+  // 判断歌词是否存在 如果存在则渲染
+  if (store.lrc == null || store.lrc == "") {
+    hasLrc.value = false;
+  } else {
+    let lrcarry = lrcToArry(store.lrc);
+    formattedLrc = lrcarry;
+    if (lrcarry[0].tag !== "0.00") {
+      hasNoZeroTime.value = true;
+    }
+  }
 
   document.querySelector("audio").addEventListener("timeupdate", timeUpdate);
 });

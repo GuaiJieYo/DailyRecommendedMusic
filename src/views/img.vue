@@ -125,7 +125,6 @@ onMounted(() => {
     auther.value,
     avatar.value,
     album.value,
-    lrc.value,
     music.value,
   ];
 

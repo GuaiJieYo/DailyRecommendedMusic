@@ -147,21 +147,27 @@
     &::-webkit-scrollbar {
       width: none;
     }
+    .hasNoZeroTime {
+      display: none;
+    }
     div {
       margin: 5px 0;
       padding: 10px;
       border-radius: 10px;
       transition: all 0.3s;
-      &[hover="false"] {
-        height: 20px;
+      // 这是歌词内容为空的选择器
+      &[empty="true"]::after {
+        height: 30px;
+        content: '♪ ● ● ● ♪';
+        font-size: 2rem;
       }
-      &[hover="true"]:hover {
+      &:hover {
         background-color: #ffffff2b;
       }
       &.active {
         color: #fafafa;
         text-shadow: 0 0 10px #e3d8fd83;
-        transform: scale(1.2);
+        transform: scale(1.1);
       }
 
       h1 {

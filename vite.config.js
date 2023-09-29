@@ -7,6 +7,7 @@ import { resolve } from 'path'
 
 // 在引用资源时自动启用别名
 export default defineConfig({
+  base: './',
   resolve: {
     alias: {
       "@": resolve(__dirname, "src"),
